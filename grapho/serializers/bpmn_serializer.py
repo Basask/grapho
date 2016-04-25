@@ -21,11 +21,20 @@ from igraph import Graph
 
 class BpmnSerializer(object):
 
-    def __init__(self, file_path, entrypoint=None):
-        entrypoint = entrypoint or 'main_process'
+    @staticmethod
+    def from_file(file_path, entrypoint=None):
         bpmn = ET.parse(file_path)
+        return BpmnSerializer(bpmn, entrypoint)
+
+    @staticmethod
+    def from_string(content, entrypoint=None):
+        bpmn = ET.fromstring(content)
+        return BpmnSerializer(bpmn, entrypoint)
+
+    def __init__(self, file_tree, entrypoint=None):
+        entrypoint = entrypoint or 'main_process'
         self.parser = BpmnParser()
-        self.parser.add_bpmn_xml(bpmn, filename=file_path)
+        self.parser.add_bpmn_xml(file_tree)
         self.spec = self.parser.get_spec(entrypoint)
         self.workflow = BpmnWorkflow(self.spec)
         self.graph = Graph(directed=True)
